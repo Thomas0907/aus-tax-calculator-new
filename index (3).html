@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>澳洲個人所得稅與打工度假退稅計算機 | AU Income Tax &amp; WHM Refund Estimator 2025-26</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d1b3e;
+    --navy-2:#1a365d;
+    --gold:#f6bf3a;
+    --gold-deep:#c98a1a;
+    --cream:#f6f4ee;
+  }
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',sans-serif;
+    background-color:var(--cream);
+    background-image:
+      radial-gradient(circle at 10% 5%, rgba(13,27,62,0.06) 0, transparent 40%),
+      radial-gradient(circle at 90% 0%, rgba(246,191,58,0.10) 0, transparent 35%);
+  }
+  .font-display{font-family:'Playfair Display',serif;}
+  .font-mono{font-family:'JetBrains Mono',monospace;}
+  .navy-grad{background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #0a1530 100%);}
+  .stars-field{
+    position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,0.55) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 75% 15%, rgba(255,255,255,0.4) 50%, transparent 51%),
+      radial-gradient(2px 2px at 60% 55%, rgba(255,255,255,0.5) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 88% 65%, rgba(255,255,255,0.35) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 35% 75%, rgba(255,255,255,0.4) 50%, transparent 51%);
+    background-repeat:no-repeat;
+    opacity:0.9;
+  }
+  .cross-star{filter:drop-shadow(0 0 6px rgba(246,191,58,0.55));}
+  .tab-btn{position:relative;transition:all .25s ease;border-bottom:3px solid transparent;}
+  .tab-btn.active{color:var(--navy);border-bottom:3px solid var(--gold);}
+  .tab-btn:not(.active){color:#8b93a7;}
+  .tab-btn:not(.active):hover{color:var(--navy-2);}
+  .gold-line{height:3px;background:linear-gradient(90deg, var(--gold-deep), var(--gold) 40%, #ffe8a8 70%, var(--gold));}
+  .result-card{border:1px solid rgba(13,27,62,0.08);box-shadow:0 1px 2px rgba(13,27,62,0.04);}
+  .input-field{transition:border-color .15s ease, box-shadow .15s ease;}
+  .input-field:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(246,191,58,0.25);}
+  .badge-dot{width:7px;height:7px;border-radius:9999px;display:inline-block;}
+  .fade-in{animation:fadeIn .35s ease both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){.fade-in{animation:none;}}
+  .ribbon-slit{clip-path:polygon(0 0,100% 0,100% 100%,50% 85%,0 100%);}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+  input[type=number]{-moz-appearance:textfield;}
+  .focus-ring:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;}
+
+  .medicare-option{position:relative;cursor:pointer;border:1.5px solid #e2e8f0;border-radius:0.75rem;padding:0.75rem 0.85rem;transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;background:#f8fafc;}
+  .medicare-option:hover{border-color:var(--gold-deep);}
+  .medicare-option.selected{border-color:var(--gold-deep);background:linear-gradient(135deg, rgba(246,191,58,0.14), rgba(246,191,58,0.04));box-shadow:0 0 0 3px rgba(246,191,58,0.18);}
+  .medicare-option input[type=radio]{accent-color:var(--gold-deep);width:16px;height:16px;}
+
+  .article-wrap h2{font-family:'Playfair Display',serif;color:var(--navy-2);font-weight:800;font-size:1.375rem;line-height:1.3;margin-top:2.75rem;margin-bottom:1rem;padding-bottom:0.6rem;border-bottom:2px solid rgba(201,138,26,0.25);}
+  @media(min-width:640px){.article-wrap h2{font-size:1.625rem;}}
+  .article-wrap p{color:#334155;line-height:1.85;margin-bottom:1.1rem;font-size:0.975rem;}
+  .article-wrap strong{color:var(--navy-2);}
+  .article-wrap ol li, .article-wrap ul li{color:#334155;line-height:1.8;margin-bottom:0.6rem;font-size:0.975rem;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;}
+
+  details.faq-item{border:1px solid rgba(13,27,62,0.10);border-radius:0.85rem;background:#fff;padding:0;overflow:hidden;}
+  details.faq-item summary{list-style:none;cursor:pointer;padding:1.1rem 1.25rem;font-weight:700;color:var(--navy-2);display:flex;align-items:center;justify-content:space-between;gap:1rem;font-size:0.95rem;}
+  details.faq-item summary::-webkit-details-marker{display:none;}
+  details.faq-item summary .chev{transition:transform .2s ease;flex-shrink:0;color:var(--gold-deep);}
+  details.faq-item[open] summary .chev{transform:rotate(180deg);}
+  details.faq-item .faq-body{padding:0 1.25rem 1.25rem 1.25rem;font-size:0.9rem;color:#475569;line-height:1.8;}
+
+  /* Language switcher */
+  .lang-btn{
+    display:flex;align-items:center;gap:0.4rem;
+    border:1px solid rgba(13,27,62,0.14);
+    background:#fff;border-radius:9999px;
+    padding:0.4rem 0.85rem;
+    font-size:0.75rem;font-weight:700;color:var(--navy-2);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .lang-btn:hover{border-color:var(--gold-deep);}
+  .lang-menu{
+    position:absolute;right:0;top:calc(100% + 6px);
+    background:#fff;border:1px solid rgba(13,27,62,0.10);
+    border-radius:0.75rem;box-shadow:0 8px 24px rgba(13,27,62,0.14);
+    min-width:150px;overflow:hidden;z-index:30;
+  }
+  .lang-menu button{
+    width:100%;text-align:left;padding:0.65rem 0.9rem;font-size:0.8rem;font-weight:600;
+    color:#475569;transition:background-color .12s ease;
+  }
+  .lang-menu button:hover{background:#f8fafc;}
+  .lang-menu button.active-lang{color:var(--gold-deep);background:rgba(246,191,58,0.08);}
+
+  /* Prevent flash-of-both-languages before Alpine.js initializes */
+  [x-cloak]{display:none !important;}
+</style>
+</head>
+<body class="min-h-screen text-slate-800 antialiased">
+
+<div x-data="taxApp()" :lang="currentLang === 'zh' ? 'zh-Hant' : 'en'" class="min-h-screen flex flex-col">
+
+  <!-- ===== Header ===== -->
+  <header class="navy-grad relative overflow-hidden">
+    <div class="stars-field"></div>
+    <div class="max-w-4xl mx-auto px-5 sm:px-8 pt-10 pb-8 sm:pt-14 sm:pb-10 relative">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="cross-star" width="18" height="18" viewBox="0 0 24 24" fill="#f6bf3a"><path d="M12 0l2.6 8.4L23 12l-8.4 2.6L12 24l-2.6-9.4L1 12l8.4-3.6z"/></svg>
+        <span class="text-[#f6bf3a] tracking-[0.25em] text-[11px] sm:text-xs font-semibold uppercase font-mono">Southern Cross Tax Estimator</span>
+      </div>
+      <h1 class="font-display text-white text-2xl sm:text-4xl font-extrabold leading-tight" x-text="t('heroTitle')"></h1>
+      <p class="text-slate-300 mt-2 text-sm sm:text-base max-w-xl" x-text="t('heroSubtitle')"></p>
+    </div>
+    <div class="gold-line"></div>
+  </header>
+
+  <!-- ===== Tabs + Language Switcher ===== -->
+  <div class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-4xl mx-auto px-5 sm:px-8 flex items-center justify-between gap-2">
+      <nav class="flex gap-1 sm:gap-2 -mb-px" role="tablist" aria-label="Tax calculator tabs">
+        <button role="tab" :aria-selected="tab === 'resident'" @click="tab = 'resident'" :class="tab === 'resident' ? 'active' : ''"
+          class="tab-btn focus-ring flex-1 sm:flex-none px-3 sm:px-6 py-4 text-left">
+          <span class="block text-[10px] sm:text-xs font-mono tracking-wider uppercase opacity-70">Tab&nbsp;A</span>
+          <span class="block text-sm sm:text-base font-bold mt-0.5" x-text="t('tabResident')"></span>
+        </button>
+        <button role="tab" :aria-selected="tab === 'whm'" @click="tab = 'whm'" :class="tab === 'whm' ? 'active' : ''"
+          class="tab-btn focus-ring flex-1 sm:flex-none px-3 sm:px-6 py-4 text-left">
+          <span class="block text-[10px] sm:text-xs font-mono tracking-wider uppercase opacity-70">Tab&nbsp;B</span>
+          <span class="block text-sm sm:text-base font-bold mt-0.5" x-text="t('tabWhm')"></span>
+        </button>
+      </nav>
+
+      <!-- Language Switcher -->
+      <div class="relative shrink-0" @click.outside="langMenuOpen = false">
+        <button type="button" @click="langMenuOpen = !langMenuOpen" class="lang-btn focus-ring" :aria-expanded="langMenuOpen">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg>
+          <span x-text="currentLang === 'zh' ? '繁體中文' : 'English'"></span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" :style="langMenuOpen ? 'transform:rotate(180deg)' : ''" style="transition:transform .2s ease;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="lang-menu" x-show="langMenuOpen" x-transition x-cloak>
+          <button type="button" @click="currentLang = 'en'; langMenuOpen = false" :class="currentLang === 'en' ? 'active-lang' : ''">English</button>
+          <button type="button" @click="currentLang = 'zh'; langMenuOpen = false" :class="currentLang === 'zh' ? 'active-lang' : ''">繁體中文</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main: Calculator ===== -->
+  <main class="flex-1">
+    <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+      <!-- Inputs -->
+      <section class="lg:col-span-2">
+        <div class="bg-white rounded-2xl result-card p-5 sm:p-6">
+          <h2 class="font-display text-lg font-bold text-[color:var(--navy-2)] mb-1" x-text="t('incomeDetailsTitle')"></h2>
+          <p class="text-xs text-slate-500 mb-5" x-text="tab === 'resident' ? t('incomeDetailsSubResident') : t('incomeDetailsSubWhm')"></p>
+
+          <div class="space-y-5">
+            <div>
+              <label class="flex items-center justify-between text-sm font-semibold text-slate-700 mb-1.5">
+                <span x-text="t('grossIncomeLabel')"></span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">A$</span>
+                <input type="number" min="0" step="100" x-model.number="income" placeholder="80000" required
+                  class="input-field w-full pl-9 pr-3 py-3 rounded-lg border border-slate-300 bg-slate-50 font-mono text-base">
+              </div>
+            </div>
+
+            <div>
+              <label class="flex items-center justify-between text-sm font-semibold text-slate-700 mb-1.5">
+                <span x-text="t('deductionsLabel')"></span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">A$</span>
+                <input type="number" min="0" step="50" x-model.number="deductions" placeholder="1500" required
+                  class="input-field w-full pl-9 pr-3 py-3 rounded-lg border border-slate-300 bg-slate-50 font-mono text-base">
+              </div>
+            </div>
+
+            <div>
+              <label class="flex items-center justify-between text-sm font-semibold text-slate-700 mb-1.5">
+                <span x-text="t('withheldLabel')"></span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">A$</span>
+                <input type="number" min="0" step="50" x-model.number="withheld" placeholder="18000" required
+                  class="input-field w-full pl-9 pr-3 py-3 rounded-lg border border-slate-300 bg-slate-50 font-mono text-base">
+              </div>
+            </div>
+
+            <!-- ===== Medicare Levy Exemption Toggle ===== -->
+            <div>
+              <label class="flex items-center justify-between text-sm font-semibold text-slate-700 mb-1.5">
+                <span x-text="t('medicareQuestion')"></span>
+              </label>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" x-show="tab === 'resident'">
+                <label class="medicare-option flex items-start gap-2.5" :class="!medicareExempt ? 'selected' : ''">
+                  <input type="radio" name="medicareStatus" value="standard" x-model="medicareExemptChoice" required class="mt-0.5 focus-ring">
+                  <span>
+                    <span class="block text-sm font-bold text-[color:var(--navy-2)]" x-text="t('medicareStandardTitle')"></span>
+                    <span class="block text-[11px] text-slate-500 leading-snug mt-0.5" x-text="t('medicareStandardDesc')"></span>
+                  </span>
+                </label>
+                <label class="medicare-option flex items-start gap-2.5" :class="medicareExempt ? 'selected' : ''">
+                  <input type="radio" name="medicareStatus" value="exempt" x-model="medicareExemptChoice" required class="mt-0.5 focus-ring">
+                  <span>
+                    <span class="block text-sm font-bold text-[color:var(--navy-2)]" x-text="t('medicareExemptTitle')"></span>
+                    <span class="block text-[11px] text-slate-500 leading-snug mt-0.5" x-text="t('medicareExemptDesc')"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="medicare-option selected flex items-start gap-2.5" x-show="tab === 'whm'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c98a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0"><path d="M20 6L9 17l-5-5"/></svg>
+                <span>
+                  <span class="block text-sm font-bold text-[color:var(--navy-2)]" x-text="t('medicareWhmAutoTitle')"></span>
+                  <span class="block text-[11px] text-slate-500 leading-snug mt-0.5" x-text="t('medicareWhmAutoDesc')"></span>
+                </span>
+              </div>
+
+              <p class="text-[11px] text-slate-500 leading-relaxed mt-2.5 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2" x-html="t('medicareTip')"></p>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-5 border-t border-dashed border-slate-200 text-xs text-slate-500 leading-relaxed">
+            <template x-if="tab === 'resident'">
+              <ul class="space-y-1.5">
+                <li class="flex gap-2"><span class="badge-dot bg-[color:var(--gold-deep)] mt-1.5 shrink-0"></span><span x-text="t('hintResident1')"></span></li>
+                <li class="flex gap-2"><span class="badge-dot bg-[color:var(--gold-deep)] mt-1.5 shrink-0"></span><span x-text="t('hintResident2')"></span></li>
+                <li class="flex gap-2"><span class="badge-dot bg-[color:var(--gold-deep)] mt-1.5 shrink-0"></span><span x-text="t('hintResident3')"></span></li>
+              </ul>
+            </template>
+            <template x-if="tab === 'whm'">
+              <ul class="space-y-1.5">
+                <li class="flex gap-2"><span class="badge-dot bg-[color:var(--gold-deep)] mt-1.5 shrink-0"></span><span x-text="t('hintWhm1')"></span></li>
+                <li class="flex gap-2"><span class="badge-dot bg-[color:var(--gold-deep)] mt-1.5 shrink-0"></span><span x-text="t('hintWhm2')"></span></li>
+                <li class="flex gap-2"><span class="badge-dot bg-[color:var(--gold-deep)] mt-1.5 shrink-0"></span><span x-text="t('hintWhm3')"></span></li>
+              </ul>
+            </template>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-400 mt-4 leading-relaxed px-1" x-text="t('toolNote')"></p>
+      </section>
+
+      <!-- Results -->
+      <section class="lg:col-span-3">
+        <div class="bg-white rounded-2xl result-card p-5 sm:p-7 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-28 h-28 -mr-10 -mt-10 rounded-full opacity-[0.06]" :class="tab==='resident' ? 'bg-[color:var(--navy)]' : 'bg-[color:var(--gold-deep)]'"></div>
+
+          <div class="flex items-center justify-between mb-6 relative">
+            <h2 class="font-display text-lg font-bold text-[color:var(--navy-2)]" x-text="t('resultsTitle')"></h2>
+            <span class="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full"
+              :class="tab==='resident' ? 'bg-[color:var(--navy)]/10 text-[color:var(--navy-2)]' : 'bg-amber-100 text-amber-800'"
+              x-text="tab==='resident' ? 'Resident FY25–26' : 'WHM 417/462'"></span>
+          </div>
+
+          <div class="flex items-center justify-between text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-6">
+            <span class="text-slate-500" x-text="t('taxableIncomeLabel')"></span>
+            <span class="font-mono font-bold text-[color:var(--navy-2)]" x-text="fmt(taxableIncome)"></span>
+          </div>
+
+          <!-- ===== Detailed tax breakdown ===== -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5 mb-6">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3" x-text="t('breakdownTitle')"></p>
+            <div class="space-y-2.5 text-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600" x-text="t('baseIncomeTaxLabel')"></span>
+                <span class="font-mono font-semibold text-[color:var(--navy-2)]" x-text="fmt(incomeTax)"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-600" x-text="t('medicareLevyLabel')"></span>
+                <span class="font-mono font-semibold" :class="medicare > 0 ? 'text-[color:var(--navy-2)]' : 'text-emerald-600'">
+                  <span x-show="medicare > 0" x-text="fmt(medicare)"></span>
+                  <span x-show="medicare === 0" x-text="t('exemptAmount')"></span>
+                </span>
+              </div>
+              <div class="flex items-center justify-between" x-show="tab === 'resident'">
+                <span class="text-slate-600" x-text="t('litoLabel')"></span>
+                <span class="font-mono font-semibold text-emerald-600" x-text="'− ' + fmt(lito)"></span>
+              </div>
+              <div class="pt-2.5 mt-1 border-t border-dashed border-slate-300 flex items-center justify-between">
+                <span class="text-slate-700 font-bold" x-text="t('finalTaxLabel')"></span>
+                <span class="font-mono font-extrabold text-base text-[color:var(--navy-2)]" x-text="fmt(totalTax)"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="fade-in rounded-xl border border-slate-200 p-4 sm:p-5 bg-white">
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1" x-text="t('taxPayableTitle')"></p>
+              <p class="text-[11px] text-slate-400 mb-3" x-text="t('taxPayableSub')"></p>
+              <p class="font-mono text-2xl sm:text-3xl font-extrabold text-[color:var(--navy-2)]" x-text="fmt(totalTax)"></p>
+              <p class="text-[11px] text-slate-400 mt-2" x-show="tab==='resident'" x-text="t('taxPayableHelperResident') + ' ' + fmt(incomeTax) + ' + Medicare ' + fmt(medicare) + ' − LITO ' + fmt(lito)"></p>
+              <p class="text-[11px] text-slate-400 mt-2" x-show="tab==='whm'" x-text="t('taxPayableHelperWhm')"></p>
+            </div>
+
+            <div class="fade-in rounded-xl border border-slate-200 p-4 sm:p-5 bg-white">
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1" x-text="t('netTakeHomeTitle')"></p>
+              <p class="text-[11px] text-slate-400 mb-3" x-text="t('netTakeHomeSub')"></p>
+              <p class="font-mono text-2xl sm:text-3xl font-extrabold text-[color:var(--navy)]" x-text="fmt(netTakeHome)"></p>
+              <p class="text-[11px] text-slate-400 mt-2" x-text="t('netTakeHomeHelper') + ' ' + fmt(netTakeHome/52)"></p>
+            </div>
+
+            <div class="fade-in sm:col-span-2 rounded-xl p-5 sm:p-6 ribbon-slit relative"
+              :class="refund >= 0 ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200' : 'bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200'">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-wide mb-1" :class="refund >= 0 ? 'text-emerald-700' : 'text-rose-700'">
+                    <span x-text="refund >= 0 ? t('refundLabel') : t('owedLabel')"></span>
+                  </p>
+                  <p class="text-[11px] mb-3" :class="refund >= 0 ? 'text-emerald-600' : 'text-rose-600'">
+                    <span x-text="refund >= 0 ? t('refundLabelSub') : t('owedLabelSub')"></span>
+                  </p>
+                  <p class="font-mono text-3xl sm:text-4xl font-extrabold" :class="refund >= 0 ? 'text-emerald-700' : 'text-rose-700'" x-text="fmt(Math.abs(refund))"></p>
+                </div>
+                <div class="shrink-0 mt-1 rounded-full w-11 h-11 flex items-center justify-center" :class="refund >= 0 ? 'bg-emerald-500/15' : 'bg-rose-500/15'">
+                  <svg x-show="refund >= 0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                  <svg x-show="refund < 0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#be123c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                </div>
+              </div>
+              <p class="text-[11px] mt-3" :class="refund >= 0 ? 'text-emerald-600' : 'text-rose-600'" x-text="t('withheldVsTax') + ' ' + fmt(withheld||0) + ' − ' + fmt(totalTax)"></p>
+            </div>
+          </div>
+
+          <div class="mt-7 pt-6 border-t border-slate-200">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3" x-text="t('bracketsTitle')"></p>
+            <div class="space-y-2">
+              <template x-for="(b, i) in brackets" :key="i">
+                <div class="flex items-center gap-3 text-xs">
+                  <span class="font-mono text-slate-400 w-28 sm:w-36 shrink-0" x-text="b.range"></span>
+                  <div class="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full rounded-full" :class="tab==='resident' ? 'bg-[color:var(--navy-2)]' : 'bg-[color:var(--gold-deep)]'" :style="'width:' + b.pct + '%'"></div>
+                  </div>
+                  <span class="font-mono text-slate-500 w-10 text-right shrink-0" x-text="b.rate"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-5 sm:px-8"><div class="border-t border-dashed border-[color:var(--navy)]/15"></div></div>
+
+    <!-- ===== Article: EN ===== -->
+    <article class="max-w-3xl mx-auto px-5 sm:px-8 py-12 sm:py-16 article-wrap" x-show="currentLang === 'en'" x-cloak>
+      <p class="eyebrow mb-3">2025–26 Financial Year Guide</p>
+      <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-[color:var(--navy)] leading-tight mb-4">The Complete 2025–26 Guide to Working Holiday Maker (417/462) Tax Refunds in Australia</h1>
+      <p class="text-sm text-slate-500 italic mb-8 leading-relaxed">Reviewed against current ATO guidance for the 2025–26 financial year (1 July 2025 – 30 June 2026). This article is general information only and is not personal tax advice — see the Legal Tax Disclaimer at the bottom of this page.</p>
+      <p>If you're on a subclass 417 or 462 visa and trying to work out how much tax you'll pay — or get back — this guide walks through the exact rates, the residency question that trips up almost everyone, legitimate ways to boost your refund, and a step-by-step walkthrough of lodging through myGov.</p>
+
+      <h2>Understanding WHM Tax Brackets for the 2025/2026 Financial Year</h2>
+      <p>Australia introduced a dedicated tax schedule for working holiday makers in 2017, commonly known as the "backpacker tax." Unlike Australian tax residents, visa holders on 417 and 462 are taxed at <strong>15% for the first $45,000</strong> of their income, with anything above that taxed at 32.5%, and higher foreign-resident rates apply beyond that.</p>
+      <p>The single biggest thing to understand is this: working holiday maker tax rates for 2025–26 and 2026–27 start at a flat 15% on the first $45,000 of income for subclass 417 and 462 visa holders, and this applies regardless of whether you are classified as an Australian tax resident or a foreign resident for tax purposes. This is different from ordinary residents, who enjoy the first $18,200 completely tax-free — WHM visa holders don't get that concession at all.</p>
+      <p>The 15% rate only applies correctly if your employer has done their part. Employers hiring working holiday makers must register with the ATO to withhold at the 15% rate — if they haven't, they're required to withhold at foreign-resident rates, which is 30% from the very first dollar. It's worth asking your employer directly, or checking your payslip, to confirm this registration has happened — it's one of the most common reasons WHM workers end up owed a refund.</p>
+      <p>A worked example from the ATO illustrates how this plays out in practice: when a registered employer pays a WHM worker weekly, tax is withheld at 15% from the very first pay — for instance, a $1,000 weekly pay results in $150 withheld. Multiply that across the year and you can see how quickly the tax withheld adds up, which is exactly why lodging a return to check the final numbers matters.</p>
+      <p><strong>One more thing to flag:</strong> without a Tax File Number, the situation gets much worse. Employers must withhold 45% from payments to a working holiday maker who has not provided a TFN within 28 days of starting — so applying for your TFN before your first pay cycle should be one of the very first things you do after arriving.</p>
+
+      <h2>Are You a Tax Resident or Working Holiday Maker? DASP and Residency Explained</h2>
+      <p>This is where most WHM visa holders get confused, so let's separate two different questions that people often mix up: <strong>your tax residency status</strong>, and <strong>your WHM visa status</strong>. They interact, but they don't cancel each other out.</p>
+      <p><strong>Residency for WHM purposes doesn't change your 15% rate in most cases.</strong> For most WHMs, whether you're an Australian or a foreign resident for tax purposes doesn't affect the rate of tax you pay — the special WHM schedule applies either way. The exception involves specific "non-discrimination article" (NDA) countries under Australia's tax treaties, where a landmark High Court case changed things.</p>
+      <p><strong>The Addy case matters here.</strong> In <em>Addy v Commissioner of Taxation</em> [2021] HCA 34, the High Court found that applying the backpacker tax to a UK working holiday maker who was also an Australian tax resident breached the non-discrimination article of the Australia–UK double tax treaty. In practical terms: if you're from a treaty country with a non-discrimination clause (the UK, US, Germany, Japan, Chile, Finland, Israel, Norway, and Turkey are the commonly cited NDA countries) <strong>and</strong> you meet the standard residency tests, you may be entitled to be taxed at ordinary resident rates — including the $18,200 tax-free threshold — instead of the flat 15%. This is a genuinely complex area and is one of the few situations in this guide where getting registered tax agent advice before lodging is strongly worthwhile.</p>
+      <p><strong>For everyone else</strong>, the standard residency tests (the resides test, the domicile test, the 183-day test, and the superannuation test) mostly determine <em>other</em> things — like whether the Medicare levy could ever apply to you, and whether foreign-sourced income needs to be declared — rather than which WHM rate you pay.</p>
+      <p><strong>Superannuation and DASP.</strong> Superannuation works differently from income tax entirely. All employers must contribute 12% of your salary into a super fund on top of your pay, as of 1 July 2025, and as a WHV holder you can't access this super until you leave Australia permanently. Once your visa has expired and you've departed, you can apply for a <strong>Departing Australia Superannuation Payment (DASP)</strong>. The catch: this isn't taxed the same as your income was. When claiming DASP, the ATO deducts 65% tax and refunds only 35% of the balance to you — a rate that has applied since 1 July 2017. This 65% rate is significantly higher than the 15% income tax rate, so it's worth planning your departure timing accordingly.</p>
+
+      <h2>How to Maximise Your Tax Refund Legally</h2>
+      <p>Because the 15% rate applies from your first dollar with no tax-free threshold, deductions are one of the few levers you control. Every dollar of legitimate work-related expense reduces your taxable income, which — at the 15% rate — is worth 15 cents back in your pocket per dollar claimed. Here are five categories genuinely relevant to WHM workers:</p>
+      <ol class="list-decimal pl-5 mb-4">
+        <li><strong>Work-related travel between job sites.</strong> If you work multiple casual jobs or travel directly between two different worksites on the same day (not your regular commute from home), that travel can generally be claimed. Keep a simple log of dates, kilometres, and purpose.</li>
+        <li><strong>Protective clothing, uniforms, and safety equipment.</strong> Farm work, hospitality, and construction-adjacent roles often require specific safety boots, high-vis clothing, gloves, or sun protection gear that isn't reimbursed by the employer. Keep the receipts — a backpacker claiming $500 in legitimate work-related deductions reduces their taxable income by $500, meaning $75 less tax at the 15% rate.</li>
+        <li><strong>Tools and equipment for your specific role.</strong> If you're required to supply your own basic tools (secateurs, a knife kit for kitchen work, etc.), the cost — or depreciation on higher-value items — can often be claimed.</li>
+        <li><strong>Self-education directly connected to your current job.</strong> Short courses or certifications that directly relate to the work you're currently doing (for example, a barista course while working as a barista, or an RSA refresher for hospitality) may be deductible — but a course for a completely different future career generally isn't.</li>
+        <li><strong>Union or professional association fees</strong>, if you're a member of one relevant to your current employment, along with tax agent fees from lodging a <em>previous</em> year's return.</li>
+      </ol>
+      <p><strong>The golden rule:</strong> you can only claim expenses you actually incurred, that directly relate to earning your income, and that you have a record for. The ATO's data-matching systems are increasingly sophisticated, and overclaiming can trigger a review — so "maximising" your refund should always mean <em>claiming everything you're legitimately entitled to</em>, not inventing expenses.</p>
+
+      <h2>Step-by-Step Guide to Lodging Your Tax Return via myGov</h2>
+      <p>You can lodge your own tax return for free directly through myGov, linked to the ATO. Here's the process from start to finish:</p>
+      <ol class="list-decimal pl-5 mb-4">
+        <li><strong>Create or log in to your myGov account.</strong> Go to my.gov.au and either create an account or log in to your existing one.</li>
+        <li><strong>Link the ATO to your myGov account.</strong> Under "Services," select "Link a service" and choose the Australian Taxation Office. You'll need some identifying details (TFN, bank account details, or an income statement) to verify the link.</li>
+        <li><strong>Wait for your income statement to be marked "Tax ready."</strong> Your employer reports your wages and tax withheld directly to the ATO through Single Touch Payroll. This information usually appears in your myGov account within a few weeks of the financial year ending (30 June). It's worth waiting for this status before lodging, since amending a return afterward is more hassle than a short delay.</li>
+        <li><strong>Start your tax return.</strong> From the ATO online services homepage, select "Tax," then "Lodgments," then "Income tax," and click "Prepare" next to the relevant income year.</li>
+        <li><strong>Check your pre-filled information.</strong> Your income and tax withheld should pre-fill automatically from your income statement(s). If you had more than one employer, confirm all of them appear.</li>
+        <li><strong>Add your deductions.</strong> This is where you manually enter the work-related expenses discussed above, under "Deductions."</li>
+        <li><strong>Review, declare, and submit.</strong> The system will calculate your estimated refund (or amount owing) before you submit. Read through the summary carefully, confirm the declaration, and lodge.</li>
+        <li><strong>Track your refund.</strong> Most electronically lodged returns are processed within about two weeks, and you can track progress under "Manage tax returns" in ATO online services.</li>
+      </ol>
+      <p>If your situation is more complex — multiple employers who withheld inconsistently, foreign income, or you think the Addy case treaty exception might apply to you — using a registered tax agent is a safer choice than self-lodging.</p>
+
+      <h2 class="!mt-16">Frequently Asked Questions</h2>
+      <div class="space-y-3 mt-6">
+        <details class="faq-item">
+          <summary><span>Q1. Will I definitely get a tax refund as a working holiday maker?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">Not automatically. You'll only receive a refund if the total tax withheld from your pay during the year was more than your final tax liability once calculated — for example, if an employer withheld at 30% by mistake, or you earned less than your withholding assumed. If your withholding matched your actual liability precisely, there's nothing to refund.</div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Q2. Can I claim the tax-free threshold or LITO as a working holiday maker?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">No. Working holiday makers on 417/462 visas don't get the standard tax-free threshold or the Low Income Tax Offset — these concessions are reserved for ordinary Australian tax residents, and this is one of the most common misconceptions among first-time WHM lodgers.</div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Q3. Do I need to pay the Medicare Levy as a working holiday maker?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">Generally, no. Working holiday makers do not pay the Medicare levy because they generally cannot access Medicare benefits, and foreign residents for tax purposes are exempt from the levy entirely. There is a narrow exception for tax residents from countries with a reciprocal health care agreement with Australia. Use the Medicare Levy toggle in the calculator above to see how this changes your estimate.</div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Q4. What happens to my superannuation when I leave Australia — and how much tax applies?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">You can claim it back via a Departing Australia Superannuation Payment (DASP) once your visa has expired and you've left the country permanently. However, the ATO withholds 65% tax on the DASP payment, so you'll receive only 35% of your accumulated super balance — a much higher effective tax rate than the 15% you paid on your wages.</div>
+        </details>
+      </div>
+    </article>
+
+    <!-- ===== Article: 中文 ===== -->
+    <article class="max-w-3xl mx-auto px-5 sm:px-8 py-12 sm:py-16 article-wrap" x-show="currentLang === 'zh'" x-cloak>
+      <p class="eyebrow mb-3">2025–26 財政年度指南</p>
+      <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-[color:var(--navy)] leading-tight mb-4">2025–26 完整指南:打工度假簽證(417/462)在澳洲的退稅攻略</h1>
+      <p class="text-sm text-slate-500 italic mb-8 leading-relaxed">本文內容已對照 2025–26 財政年度(2025 年 7 月 1 日至 2026 年 6 月 30 日)ATO 最新指引審閱。本文僅供一般資訊參考，並非個人化稅務建議——詳見本頁底部之法律免責聲明。</p>
+      <p>如果你持有 417 或 462 簽證，正在計算需要繳多少稅、或能退回多少稅，本篇指南將帶你了解確切稅率、幾乎每個人都會搞混的居民身分判定、合法提高退稅的方法，以及透過 myGov 報稅的完整步驟。</p>
+
+      <h2>了解 2025/2026 財年的 WHM 稅率級距</h2>
+      <p>澳洲於 2017 年針對打工度假者導入專屬稅制，俗稱「背包客稅」。與澳洲稅務居民不同，417 及 462 簽證持有人的<strong>前 $45,000 收入課徵 15%</strong>稅率，超過部分課徵 32.5%，再往上則適用更高的外國居民稅率。</p>
+      <p>最重要的觀念是:2025–26 及 2026–27 財年,417/462 簽證持有人的前 $45,000 收入一律課徵 15% 稅率，且無論你被認定為澳洲稅務居民或外國稅務居民，這項規則都同樣適用。這與一般居民不同——一般居民享有前 $18,200 完全免稅，但 WHM 簽證持有人完全沒有這項優惠。</p>
+      <p>15% 稅率能否正確適用，取決於雇主是否完成登記。雇用打工度假者的雇主必須向 ATO 登記，才能以 15% 稅率預扣稅款——若未登記，則必須以外國居民稅率預扣，也就是從第一塊錢開始就課徵 30%。建議直接向雇主確認，或檢查薪資單，以確認雇主是否已完成登記——這正是許多 WHM 工作者最終能拿到退稅的最常見原因之一。</p>
+      <p>ATO 提供的實例說明了實際運作方式:當已登記的雇主以週薪方式支付 WHM 工作者薪資時，稅款會從第一筆薪資就以 15% 預扣——例如週薪 $1,000，會被預扣 $150。全年累積下來，你就能理解為何預扣稅款會迅速累積，這也正是報稅核對最終數字如此重要的原因。</p>
+      <p><strong>還有一點務必留意:</strong>若沒有稅號(TFN)，情況會更糟。雇主必須對未在到職 28 天內提供 TFN 的打工度假者，以 45% 稅率預扣款項——因此，在第一次領薪前盡快申請 TFN，應是抵達澳洲後最優先要做的事情之一。</p>
+
+      <h2>你是稅務居民還是打工度假者?DASP 與居民身分完整說明</h2>
+      <p>這是多數 WHM 簽證持有人最容易搞混的地方，我們先釐清兩個經常被混為一談的不同問題:<strong>你的稅務居民身分</strong>，以及<strong>你的 WHM 簽證身分</strong>。兩者會互相影響，但並不會互相抵消。</p>
+      <p><strong>多數情況下，WHM 的居民身分並不會改變你的 15% 稅率。</strong>對大多數 WHM 而言，無論你是澳洲稅務居民或外國稅務居民，都不會影響你適用的稅率——WHM 專屬稅制在兩種情況下皆適用。唯一的例外，涉及澳洲租稅協定中特定「無歧視待遇條款(NDA)」的協定國，一項具指標性意義的高等法院判例改變了這個情況。</p>
+      <p><strong>Addy 案例在此至關重要。</strong>在 <em>Addy v Commissioner of Taxation</em> [2021] HCA 34 一案中，高等法院認定，對同時具備澳洲稅務居民身分的英國打工度假者課徵背包客稅，違反了澳英雙重課稅協定中的無歧視待遇條款。實務上而言:若你來自具有無歧視待遇條款的協定國(常見的協定國包括英國、美國、德國、日本、智利、芬蘭、以色列、挪威及土耳其)，<strong>且</strong>你符合一般居民身分測試的資格，你可能有權適用一般居民稅階課稅——包含 $18,200 免稅門檻——而非一律適用 15% 稅率。這是一個相當複雜的領域，也是本指南中少數強烈建議在報稅前先諮詢註冊稅務代理人的情況。</p>
+      <p><strong>對其他多數人而言</strong>，標準居民身分測試(住所測試、Domicile 測試、183 天測試、退休金測試)主要決定的是<em>其他事項</em>——例如你是否可能需要繳納 Medicare Levy，以及是否需要申報海外來源收入——而非你適用哪一種 WHM 稅率。</p>
+      <p><strong>退休金與 DASP。</strong>退休金(Superannuation)的運作方式與所得稅完全不同。自 2025 年 7 月 1 日起，所有雇主都必須在薪資之外，額外提撥薪資的 12% 至退休金帳戶，而身為打工度假簽證持有者，你必須等到永久離開澳洲後，才能動用這筆退休金。簽證到期並離境後，你可以申請<strong>離境澳洲退休金給付(DASP)</strong>。但要注意:這筆款項的課稅方式與你的一般所得稅並不相同。申請 DASP 時，ATO 會扣除 65% 的稅款，僅退還餘額的 35% 給你——這項稅率自 2017 年 7 月 1 日起適用至今。65% 的稅率遠高於 15% 的所得稅率，因此規劃離境時間時，務必將這項差異納入考量。</p>
+
+      <h2>如何合法最大化你的退稅</h2>
+      <p>由於 15% 稅率從第一塊錢就開始課徵，且沒有免稅門檻，扣除額(Deductions)是少數你能掌控的槓桿之一。每一塊錢合法的工作相關支出，都能降低你的應稅所得——以 15% 稅率計算，每申報 1 元扣除額，就能換回 15 分退稅。以下是與 WHM 工作者真正相關的五大類扣除額:</p>
+      <ol class="list-decimal pl-5 mb-4">
+        <li><strong>工作地點間的交通費。</strong>若你同時從事多份臨時工作，或同一天內需直接往返兩個不同工作地點(而非從家中通勤的日常交通)，這類交通費用通常可以申報。建議簡單記錄日期、里程與行程目的。</li>
+        <li><strong>未獲雇主補貼的防護服、制服與安全裝備。</strong>農場工作、餐飲服務業，以及與營建相關的職務，經常需要特定的安全鞋、高視度服裝、手套或防曬裝備，且雇主未提供補貼。務必保留收據——即使金額不大也會累積:若打工度假者申報 $500 的合法工作相關扣除額，即可降低 $500 應稅所得，以 15% 稅率計算等於少繳 $75 的稅。</li>
+        <li><strong>與職務相關的自備工具與設備。</strong>若你的工作需要自備基本工具(例如園藝剪、廚房刀具組等)，這些費用——或較高價值物品的折舊——通常可以申報。</li>
+        <li><strong>與目前工作直接相關的進修課程。</strong>與你目前工作內容直接相關的短期課程或證照(例如擔任咖啡師期間修習咖啡師課程，或餐飲業的 RSA 複訓)可能可以申報扣除額——但與未來完全不同職涯方向相關的課程，通常不可申報。</li>
+        <li><strong>工會或專業協會會費</strong>(若你是與目前工作相關組織的會員)，以及申報<em>前一年度</em>報稅時支付的稅務代理人費用。</li>
+      </ol>
+      <p><strong>黃金原則:</strong>你只能申報實際發生、與賺取收入直接相關、且有憑證可查的支出。ATO 的資料比對系統日益精密，過度申報可能觸發審查——因此,「最大化退稅」的正確做法永遠是<em>把你應得的扣除額申報完整</em>，而非憑空捏造支出。</p>
+
+      <h2>myGov 報稅逐步教學</h2>
+      <p>你可以透過連結 ATO 的 myGov 帳號，免費自行報稅。以下是完整流程:</p>
+      <ol class="list-decimal pl-5 mb-4">
+        <li><strong>建立或登入 myGov 帳號。</strong>前往 my.gov.au，建立新帳號或登入現有帳號。</li>
+        <li><strong>將 ATO 服務連結至 myGov 帳號。</strong>在「Services」項目中選擇「Link a service」，並選擇 Australian Taxation Office。你需要提供部分身分驗證資訊(TFN、銀行帳戶資料或所得申報書)以完成連結。</li>
+        <li><strong>等待所得資料顯示「Tax ready」。</strong>雇主會透過 Single Touch Payroll 系統，直接向 ATO 申報你的薪資與已扣繳稅款。這項資訊通常會在財年結束(6 月 30 日)後數週內顯示於你的 myGov 帳號中。建議等待此狀態出現後再報稅，因為事後修改申報書會比稍作等待更麻煩。</li>
+        <li><strong>開始你的報稅程序。</strong>在 ATO 線上服務首頁，依序選擇「Tax」→「Lodgments」→「Income tax」，並點選對應年度旁的「Prepare」。</li>
+        <li><strong>核對系統預填資料。</strong>你的收入與已扣繳稅款應會依所得申報書自動預填。若你有多位雇主，請確認所有雇主資料皆已顯示。</li>
+        <li><strong>填入扣除額。</strong>在「Deductions」項目中，手動輸入前述提及的工作相關扣除額。</li>
+        <li><strong>核對、聲明並送出申報。</strong>系統會在你送出前計算預估退稅(或應繳金額)。請仔細核對摘要內容，確認聲明後送出申報。</li>
+        <li><strong>追蹤退稅進度。</strong>多數電子申報案件約在兩週內處理完成，你可在 ATO 線上服務的「Manage tax returns」頁面追蹤進度。</li>
+      </ol>
+      <p>若你的情況較為複雜——例如多位雇主預扣稅率不一致、擁有海外收入，或認為自己可能適用 Addy 案例的協定豁免——委託註冊稅務代理人協助申報，會比自行報稅更為保險。</p>
+
+      <h2 class="!mt-16">常見問題 FAQ</h2>
+      <div class="space-y-3 mt-6">
+        <details class="faq-item">
+          <summary><span>Q1. 身為打工度假者，我一定會拿到退稅嗎?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">不一定。只有當雇主全年預扣的稅額「超過」你最終應繳的稅額時，才會有退稅——例如雇主誤用 30% 稅率預扣，或你實際收入低於預扣時的估算基準。若預扣金額剛好等於應繳稅額，則沒有退稅可拿。</div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Q2. 身為打工度假者，我可以申請免稅門檻或 LITO 嗎?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">不行。417/462 簽證持有人無法適用一般居民的免稅門檻($18,200)或低收入抵稅額(LITO)，這兩項優惠僅限一般澳洲稅務居民，是新手報稅時最常見的誤解之一。</div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Q3. 身為打工度假者，我需要繳納 Medicare Levy 嗎?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">一般來說不需要。多數 WHM 因無法使用 Medicare 醫療福利，因此免繳 2% 的 Medicare Levy，且外國稅務居民本就完全豁免此項目。唯一例外是來自與澳洲簽有「互惠醫療協議」國家、且被認定為稅務居民者。可於上方計算機切換 Medicare Levy 選項，查看金額差異。</div>
+        </details>
+        <details class="faq-item">
+          <summary><span>Q4. 離開澳洲後，我的退休金會怎麼處理?需要繳多少稅?</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="faq-body">簽證到期且永久離境後，可透過 DASP(Departing Australia Superannuation Payment)申請退回退休金，但 ATO 會對這筆款項預扣 65% 的稅，實際只退還 35% 給你——這個稅率遠高於工作時 15% 的所得稅率，規劃離境時務必將這筆稅負差異納入考量。</div>
+        </details>
+      </div>
+    </article>
+
+    <div class="max-w-4xl mx-auto px-5 sm:px-8"><div class="border-t border-dashed border-[color:var(--navy)]/15"></div></div>
+
+    <!-- ===== Legal Disclaimer: EN ===== -->
+    <section id="disclaimer" class="max-w-3xl mx-auto px-5 sm:px-8 py-12 sm:py-16" x-show="currentLang === 'en'" x-cloak>
+      <div class="bg-white rounded-2xl result-card p-6 sm:p-8 border-l-4" style="border-left-color:var(--gold-deep);">
+        <p class="eyebrow mb-2">Important</p>
+        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-[color:var(--navy)] mb-5">Legal Tax Disclaimer</h2>
+        <div class="space-y-5 text-sm leading-relaxed text-slate-600">
+          <p><strong class="text-[color:var(--navy-2)]">All content on this Site — including the Income Tax Calculator, Working Holiday Maker (WHM) Refund Calculator, articles, and guides — is provided for general informational and educational purposes only.</strong> Nothing on this Site constitutes, and should not be interpreted as, personal financial advice, tax advice, legal advice, or an official determination from the Australian Taxation Office (ATO). Calculator results — including the Medicare Levy exemption toggle — are <strong>estimates only</strong>, based on the figures and options you select, and are not a substitute for a formal tax return, a Medicare Levy Exemption Certificate (MES) determination from Services Australia, or advice from a Registered Tax Agent.</p>
+          <p><strong class="text-[color:var(--navy-2)]">[Your Website Name] is not a Registered Tax Agent</strong>, is not registered with the Tax Practitioners Board (TPB), and does not provide "tax agent services" as defined under the <em>Tax Agent Services Act 2009</em> (Cth). We do not prepare or lodge tax returns on your behalf, and we do not take responsibility for the accuracy of any return you lodge yourself. If you require advice specific to your circumstances — including whether you genuinely qualify for a Medicare Levy exemption — we strongly recommend engaging a Registered Tax Agent, or applying directly to Services Australia for an MES. Verify tax agent registration via the <a href="https://www.tpb.gov.au/public-register" class="underline decoration-dotted text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">TPB public register</a>.</p>
+          <p>This Site is an independently operated website and is <strong class="text-[color:var(--navy-2)]">not affiliated with, endorsed by, or officially connected to the Australian Taxation Office (ATO)</strong>, Services Australia, or the Australian Government in any way. Tax law, rates, and thresholds are subject to change without notice. For authoritative, up-to-date information, always refer to <a href="https://www.ato.gov.au" class="underline decoration-dotted text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">ato.gov.au</a> or your <a href="https://my.gov.au" class="underline decoration-dotted text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">myGov</a> account.</p>
+          <p>Tax outcomes depend heavily on individual facts, including visa subclass, residency status, applicable double tax agreements, employer withholding accuracy, substantiated deductions, and genuine Medicare Levy exemption eligibility. To the maximum extent permitted by law, [Your Website Name], its owners, operators, and affiliates accept <strong class="text-[color:var(--navy-2)]">no liability</strong> for any loss or adverse outcome arising from reliance on this Site's estimates or content, including discrepancies with your actual ATO assessment.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Legal Disclaimer: 中文 ===== -->
+    <section class="max-w-3xl mx-auto px-5 sm:px-8 py-12 sm:py-16" x-show="currentLang === 'zh'" x-cloak>
+      <div class="bg-white rounded-2xl result-card p-6 sm:p-8 border-l-4" style="border-left-color:var(--gold-deep);">
+        <p class="eyebrow mb-2">重要聲明</p>
+        <h2 class="font-display text-xl sm:text-2xl font-extrabold text-[color:var(--navy)] mb-5">法律稅務免責聲明</h2>
+        <div class="space-y-5 text-sm leading-relaxed text-slate-600">
+          <p><strong class="text-[color:var(--navy-2)]">本站所有內容——包括個人所得稅計算機、打工度假(WHM)退稅計算機、文章與指南——僅供一般教育與參考用途。</strong>本站內容不構成、亦不應被解讀為個人財務建議、稅務建議、法律建議，或澳洲稅務局(ATO)的官方認定。計算機試算結果——包含 Medicare Levy 豁免切換選項——皆<strong>僅為估算</strong>，依你所輸入的數字與選項計算而得，並不能取代正式報稅程序、Services Australia 核發之 Medicare Levy Exemption Certificate(MES)認定，或註冊稅務代理人之專業建議。</p>
+          <p><strong class="text-[color:var(--navy-2)]">[Your Website Name] 並非註冊稅務代理人</strong>，未於 Tax Practitioners Board(TPB)註冊，亦未提供《Tax Agent Services Act 2009》(Cth) 所定義之「稅務代理服務」。本站不代為準備或提交報稅申報，亦不對使用者自行提交之報稅內容準確性負責。若你的情況需要個人化建議——包括是否真正符合 Medicare Levy 豁免資格——強烈建議委託註冊稅務代理人，或直接向 Services Australia 申請 MES。可透過 <a href="https://www.tpb.gov.au/public-register" class="underline decoration-dotted text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">TPB 公開名冊</a> 查詢稅務代理人是否具備合法登記資格。</p>
+          <p>本站為獨立經營之網站，<strong class="text-[color:var(--navy-2)]">與澳洲稅務局(ATO)、Services Australia 或澳洲政府並無任何官方關聯、認可或合作關係</strong>。稅法、稅率與門檻可能隨時變動，恕不另行通知。如需最新且權威之資訊，請務必參考 <a href="https://www.ato.gov.au" class="underline decoration-dotted text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">ato.gov.au</a> 或你的 <a href="https://my.gov.au" class="underline decoration-dotted text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">myGov</a> 帳號。</p>
+          <p>稅務結果高度取決於個人實際情況，包括簽證類別、居民身分、適用之雙重課稅協定、雇主預扣稅款之準確性、可佐證之扣除額，以及是否真正符合 Medicare Levy 豁免資格。在法律允許的最大範圍內，[Your Website Name] 及其所有人、經營者與關係企業，<strong class="text-[color:var(--navy-2)]">不對任何因信賴本站試算結果或內容所導致之損失或不利結果負責</strong>，包括與你實際 ATO 核定結果之差異。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="navy-grad relative overflow-hidden mt-auto">
+    <div class="gold-line"></div>
+    <div class="stars-field opacity-40"></div>
+    <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8 relative">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <p class="text-slate-300 text-xs" x-text="t('footerCopyright')"></p>
+        <p class="text-slate-400 text-[11px] font-mono">Rates: ATO Individual &amp; WHM Income Tax 2025–26</p>
+      </div>
+      <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-2 mt-5 pt-5 border-t border-white/10 text-[11px]">
+        <button type="button" @click="openModal('about')" class="text-slate-400 hover:text-[#f6bf3a] transition-colors focus-ring" x-text="t('footerAbout')"></button>
+        <button type="button" @click="openModal('contact')" class="text-slate-400 hover:text-[#f6bf3a] transition-colors focus-ring" x-text="t('footerContact')"></button>
+        <button type="button" @click="openModal('privacy')" class="text-slate-400 hover:text-[#f6bf3a] transition-colors focus-ring" x-text="t('footerPrivacy')"></button>
+        <button type="button" @click="openModal('terms')" class="text-slate-400 hover:text-[#f6bf3a] transition-colors focus-ring" x-text="t('footerTerms')"></button>
+        <button type="button" @click="openModal('disclaimer')" class="text-slate-400 hover:text-[#f6bf3a] transition-colors focus-ring" x-text="t('footerDisclaimer')"></button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== Footer Modals ===== -->
+  <div x-show="activeModal !== null" x-cloak x-transition.opacity
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+    @keydown.escape.window="closeModal()">
+
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-[color:var(--navy)]/60 backdrop-blur-sm" @click="closeModal()"></div>
+
+    <!-- Modal Card -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden"
+      x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+      role="dialog" aria-modal="true">
+
+      <!-- Modal header -->
+      <div class="navy-grad relative overflow-hidden px-5 sm:px-6 py-4 flex items-center justify-between shrink-0">
+        <div class="stars-field opacity-50"></div>
+        <h3 class="font-display text-white text-lg sm:text-xl font-bold relative" x-text="modalTitle"></h3>
+        <button type="button" @click="closeModal()" aria-label="Close" class="relative shrink-0 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors focus-ring">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal body (scrollable) -->
+      <div class="px-5 sm:px-6 py-5 overflow-y-auto text-sm leading-relaxed text-slate-600 space-y-4">
+
+        <!-- About Us -->
+        <template x-if="activeModal === 'about'">
+          <div>
+            <template x-if="currentLang === 'en'"><div class="space-y-4">
+              <p><strong class="text-[color:var(--navy-2)]">Southern Cross Tax Estimator</strong> is an independently developed, non-government website built to help Australian tax residents and working holiday makers (417/462) get a clear, upfront estimate of their income tax, Medicare Levy, and refund position for the 2025–26 financial year.</p>
+              <p>We built this site because working out where you stand — especially as a WHM navigating the 15% backpacker tax schedule, residency rules, and Medicare Levy exemption — is often confusing and scattered across multiple government resources. Our calculators bring the key numbers together in one place, based on publicly available ATO rates and thresholds.</p>
+              <p>We are <strong class="text-[color:var(--navy-2)]">not a Registered Tax Agent</strong> and are <strong class="text-[color:var(--navy-2)]">not affiliated with the Australian Taxation Office (ATO)</strong> or any Australian government body. This site exists purely to help you understand the numbers before you lodge — whether that's yourself via myGov or with the help of a registered tax professional.</p>
+            </div></template>
+            <template x-if="currentLang === 'zh'"><div class="space-y-4">
+              <p><strong class="text-[color:var(--navy-2)]">Southern Cross Tax Estimator</strong> 是一個獨立開發、非官方經營的網站，旨在協助澳洲稅務居民與打工度假者（417/462）快速掌握 2025–26 財年的所得稅、Medicare Levy 與退稅概況。</p>
+              <p>我們發現，無論是 WHM 15% 背包客稅制、居民身分判定，或 Medicare Levy 豁免資格，這些資訊往往分散在政府各個網站，不易一次搞懂。因此我們打造這個工具，將 ATO 公開的稅率與門檻整合在同一個頁面，方便你快速試算。</p>
+              <p>本站<strong class="text-[color:var(--navy-2)]">並非註冊稅務代理人</strong>，也<strong class="text-[color:var(--navy-2)]">與澳洲稅務局（ATO）或任何政府機構無關</strong>。本站的存在，純粹是希望協助你在正式報稅前，先掌握大致的數字概念——無論你之後選擇自行透過 myGov 申報，或委託註冊稅務代理人協助。</p>
+            </div></template>
+          </div>
+        </template>
+
+        <!-- Contact Us -->
+        <template x-if="activeModal === 'contact'">
+          <div>
+            <template x-if="currentLang === 'en'"><div class="space-y-4">
+              <p>Have a question, spotted an error in our calculator, or want to give feedback? We'd love to hear from you.</p>
+              <div class="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Email</p>
+                <a href="mailto:hello@southerncrosstax.example" class="font-mono text-sm text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">hello@southerncrosstax.example</a>
+              </div>
+
+              <!-- Success state -->
+              <div x-show="contactStatus === 'success'" x-cloak class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-5 text-center">
+                <svg class="mx-auto mb-2" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                <p class="text-sm font-bold text-emerald-700 mb-1">Thanks — your message is on its way!</p>
+                <p class="text-xs text-emerald-600 mb-3">We'll get back to you as soon as we can.</p>
+                <button type="button" @click="resetContactForm()" class="text-xs font-semibold text-emerald-700 underline decoration-dotted">Send another message</button>
+              </div>
+
+              <!-- Form -->
+              <form class="space-y-3" x-show="contactStatus !== 'success'" @submit.prevent="submitContactForm()">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Name</label>
+                  <input type="text" name="name" x-model="contactName" placeholder="Your name" required :disabled="contactStatus === 'sending'"
+                    class="input-field w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-sm disabled:opacity-60">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+                  <input type="email" name="email" x-model="contactEmail" placeholder="you@example.com" required :disabled="contactStatus === 'sending'"
+                    class="input-field w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-sm disabled:opacity-60">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">Message</label>
+                  <textarea name="message" x-model="contactMessage" rows="3" placeholder="How can we help?" required :disabled="contactStatus === 'sending'"
+                    class="input-field w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-sm resize-none disabled:opacity-60"></textarea>
+                </div>
+
+                <p x-show="contactStatus === 'error'" x-cloak class="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2" x-text="contactErrorMsg"></p>
+
+                <button type="submit" :disabled="contactStatus === 'sending'"
+                  class="w-full py-2.5 rounded-lg font-bold text-sm text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style="background:var(--navy-2)">
+                  <svg x-show="contactStatus === 'sending'" class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="9" stroke-opacity="0.3"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                  <span x-text="contactStatus === 'sending' ? 'Sending…' : 'Send Message'"></span>
+                </button>
+              </form>
+              <p class="text-[11px] text-slate-400 leading-relaxed">Please note: we cannot provide personalised tax advice via email or this form. For advice specific to your situation, please consult a Registered Tax Agent.</p>
+            </div></template>
+
+            <template x-if="currentLang === 'zh'"><div class="space-y-4">
+              <p>有任何問題、發現計算機有誤，或想給我們建議嗎？歡迎與我們聯絡。</p>
+              <div class="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Email 電子郵件</p>
+                <a href="mailto:hello@southerncrosstax.example" class="font-mono text-sm text-[color:var(--navy-2)] hover:text-[color:var(--gold-deep)]">hello@southerncrosstax.example</a>
+              </div>
+
+              <!-- 成功狀態 -->
+              <div x-show="contactStatus === 'success'" x-cloak class="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-5 text-center">
+                <svg class="mx-auto mb-2" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                <p class="text-sm font-bold text-emerald-700 mb-1">訊息已送出，謝謝你的來信！</p>
+                <p class="text-xs text-emerald-600 mb-3">我們會盡快回覆你。</p>
+                <button type="button" @click="resetContactForm()" class="text-xs font-semibold text-emerald-700 underline decoration-dotted">再送出一則訊息</button>
+              </div>
+
+              <!-- 表單 -->
+              <form class="space-y-3" x-show="contactStatus !== 'success'" @submit.prevent="submitContactForm()">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">姓名</label>
+                  <input type="text" name="name" x-model="contactName" placeholder="你的姓名" required :disabled="contactStatus === 'sending'"
+                    class="input-field w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-sm disabled:opacity-60">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">電子郵件</label>
+                  <input type="email" name="email" x-model="contactEmail" placeholder="you@example.com" required :disabled="contactStatus === 'sending'"
+                    class="input-field w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-sm disabled:opacity-60">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1">訊息內容</label>
+                  <textarea name="message" x-model="contactMessage" rows="3" placeholder="請告訴我們可以如何協助你" required :disabled="contactStatus === 'sending'"
+                    class="input-field w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-slate-50 text-sm resize-none disabled:opacity-60"></textarea>
+                </div>
+
+                <p x-show="contactStatus === 'error'" x-cloak class="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2" x-text="contactErrorMsg"></p>
+
+                <button type="submit" :disabled="contactStatus === 'sending'"
+                  class="w-full py-2.5 rounded-lg font-bold text-sm text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style="background:var(--navy-2)">
+                  <svg x-show="contactStatus === 'sending'" class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="9" stroke-opacity="0.3"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                  <span x-text="contactStatus === 'sending' ? '傳送中…' : '送出訊息'"></span>
+                </button>
+              </form>
+              <p class="text-[11px] text-slate-400 leading-relaxed">請注意：我們無法透過 Email 或此表單提供個人化稅務建議。如需針對你個人情況的專業建議，請諮詢註冊稅務代理人。</p>
+            </div></template>
+          </div>
+        </template>
+
+        <!-- Privacy Policy -->
+        <template x-if="activeModal === 'privacy'">
+          <div>
+            <template x-if="currentLang === 'en'"><div class="space-y-4">
+              <p class="text-xs text-slate-400 italic">Last updated: [Insert Date]</p>
+              <p>This Privacy Policy explains how <strong class="text-[color:var(--navy-2)]">Southern Cross Tax Estimator</strong> collects and uses information when you use this site, including our calculator tools.</p>
+              <p><strong class="text-[color:var(--navy-2)]">Calculator data.</strong> Figures you enter (income, deductions, withheld tax) are processed in your browser to generate an estimate. We do not require an account and do not knowingly collect your TFN, full name, or government ID through the calculators.</p>
+              <p><strong class="text-[color:var(--navy-2)]">Google AdSense.</strong> This site displays ads served by Google AdSense. Google may use cookies — including the DoubleClick DART cookie — to serve ads based on your visits to this and other sites. You can opt out of personalised advertising at <a href="https://adssettings.google.com" class="underline decoration-dotted text-[color:var(--navy-2)]">adssettings.google.com</a> or <a href="https://www.aboutads.info/choices" class="underline decoration-dotted text-[color:var(--navy-2)]">aboutads.info/choices</a>.</p>
+              <p><strong class="text-[color:var(--navy-2)]">Google Analytics.</strong> We use Google Analytics to understand site traffic via cookies that collect anonymised/pseudonymised usage data, transmitted to Google's servers. You can opt out using the <a href="https://tools.google.com/dlpage/gaoptout" class="underline decoration-dotted text-[color:var(--navy-2)]">Google Analytics Opt-out Add-on</a>.</p>
+              <p>You can manage or disable cookies in your browser settings at any time; this may affect some site functionality. We do not sell your personal information to third parties.</p>
+              <p class="text-[11px] text-slate-400">For questions about this policy, contact us via the Contact Us section above.</p>
+            </div></template>
+            <template x-if="currentLang === 'zh'"><div class="space-y-4">
+              <p class="text-xs text-slate-400 italic">最後更新日期：[請填入日期]</p>
+              <p>本隱私權政策說明 <strong class="text-[color:var(--navy-2)]">Southern Cross Tax Estimator</strong> 在你使用本站（包括計算機工具）時，如何蒐集與使用相關資訊。</p>
+              <p><strong class="text-[color:var(--navy-2)]">計算機資料。</strong>你輸入的數字（收入、扣除額、已預扣稅款）僅在瀏覽器端處理以產生試算結果。本站不需要建立帳號，也不會透過計算機蒐集你的 TFN、全名或政府身分證號。</p>
+              <p><strong class="text-[color:var(--navy-2)]">Google AdSense。</strong>本站顯示由 Google AdSense 提供的廣告。Google 可能使用 Cookie（包含 DoubleClick DART Cookie）依你在本站及其他網站的瀏覽紀錄投放廣告。你可至 <a href="https://adssettings.google.com" class="underline decoration-dotted text-[color:var(--navy-2)]">adssettings.google.com</a> 或 <a href="https://www.aboutads.info/choices" class="underline decoration-dotted text-[color:var(--navy-2)]">aboutads.info/choices</a> 退出個人化廣告。</p>
+              <p><strong class="text-[color:var(--navy-2)]">Google Analytics。</strong>本站使用 Google Analytics 透過 Cookie 蒐集匿名化／去識別化的使用行為資料，並傳輸至 Google 伺服器以分析網站流量。你可安裝 <a href="https://tools.google.com/dlpage/gaoptout" class="underline decoration-dotted text-[color:var(--navy-2)]">Google Analytics 退出外掛</a> 停用追蹤。</p>
+              <p>你可隨時於瀏覽器設定中管理或停用 Cookie，惟這可能影響部分網站功能。本站不會將你的個人資料出售予第三方。</p>
+              <p class="text-[11px] text-slate-400">如對本政策有任何疑問，歡迎透過上方「聯絡我們」與我們聯繫。</p>
+            </div></template>
+          </div>
+        </template>
+
+        <!-- Terms of Service -->
+        <template x-if="activeModal === 'terms'">
+          <div>
+            <template x-if="currentLang === 'en'"><div class="space-y-4">
+              <p class="text-xs text-slate-400 italic">Last updated: [Insert Date]</p>
+              <p>By using this site, you agree to the following terms. If you do not agree, please do not use the site.</p>
+              <p><strong class="text-[color:var(--navy-2)]">Estimates only.</strong> All calculator tools generate estimates only, based on the figures you enter and publicly available ATO rates. Results are not guaranteed to be accurate or applicable to your individual circumstances.</p>
+              <p><strong class="text-[color:var(--navy-2)]">Acceptable use.</strong> You agree not to use this site for unlawful purposes, attempt to scrape or reverse-engineer the calculator tools for commercial redistribution, or misrepresent our estimates as official ATO determinations.</p>
+              <p><strong class="text-[color:var(--navy-2)]">Intellectual property.</strong> Content on this site is owned by or licensed to us. You may view and use it for personal, non-commercial purposes only.</p>
+              <p><strong class="text-[color:var(--navy-2)]">No warranty &amp; limitation of liability.</strong> This site is provided "as is" with no warranty of accuracy. To the maximum extent permitted by law, we accept no liability for losses arising from reliance on this site's content or estimates.</p>
+              <p>We may update these Terms at any time; continued use of the site constitutes acceptance of the current version.</p>
+            </div></template>
+            <template x-if="currentLang === 'zh'"><div class="space-y-4">
+              <p class="text-xs text-slate-400 italic">最後更新日期：[請填入日期]</p>
+              <p>使用本站即表示你同意以下條款。若不同意，請勿使用本站。</p>
+              <p><strong class="text-[color:var(--navy-2)]">僅供估算。</strong>本站所有計算工具皆依你輸入的數字與公開的 ATO 稅率產生估算結果，不保證結果之準確性，亦不保證適用於你的個人情況。</p>
+              <p><strong class="text-[color:var(--navy-2)]">使用規範。</strong>你同意不將本站用於非法用途，不得擅自爬取或反向工程計算工具作商業散布用途，亦不得將本站估算結果誤導性地描述為 ATO 官方認定結果。</p>
+              <p><strong class="text-[color:var(--navy-2)]">智慧財產權。</strong>本站內容之著作權歸本站所有或已取得授權，你僅能作個人、非商業用途之瀏覽與使用。</p>
+              <p><strong class="text-[color:var(--navy-2)]">免責聲明與責任限制。</strong>本站以「現況」提供服務，不保證內容準確性。在法律允許的最大範圍內，本站對因信賴本站內容或估算結果所生之任何損失，不負任何責任。</p>
+              <p>本站得隨時更新本條款；你於條款更新後繼續使用本站，即視為同意最新版本條款。</p>
+            </div></template>
+          </div>
+        </template>
+
+        <!-- Legal Disclaimer -->
+        <template x-if="activeModal === 'disclaimer'">
+          <div>
+            <template x-if="currentLang === 'en'"><div class="space-y-4">
+              <p><strong class="text-[color:var(--navy-2)]">All content on this site — including the Income Tax Calculator and Working Holiday Maker (WHM) Refund Calculator — is general information only.</strong> Nothing here constitutes personal financial, tax, or legal advice, or an official determination from the Australian Taxation Office (ATO). Results are estimates only and are not a substitute for a formal tax return or advice from a Registered Tax Agent.</p>
+              <p><strong class="text-[color:var(--navy-2)]">We are not a Registered Tax Agent</strong> and are not registered with the Tax Practitioners Board (TPB). We do not prepare or lodge tax returns on your behalf. Verify a tax agent's registration at the <a href="https://www.tpb.gov.au/public-register" class="underline decoration-dotted text-[color:var(--navy-2)]">TPB public register</a>.</p>
+              <p>This site is <strong class="text-[color:var(--navy-2)]">not affiliated with or endorsed by the ATO</strong>, Services Australia, or the Australian Government. Tax law and rates change — always verify current figures at <a href="https://www.ato.gov.au" class="underline decoration-dotted text-[color:var(--navy-2)]">ato.gov.au</a>.</p>
+              <p>To the maximum extent permitted by law, we accept no liability for any loss arising from reliance on this site's estimates, including discrepancies with your actual ATO assessment.</p>
+            </div></template>
+            <template x-if="currentLang === 'zh'"><div class="space-y-4">
+              <p><strong class="text-[color:var(--navy-2)]">本站所有內容——包括個人所得稅計算機與打工度假（WHM）退稅計算機——僅供一般資訊參考。</strong>本站內容不構成個人財務、稅務或法律建議，亦非澳洲稅務局（ATO）之官方認定。所有結果僅為估算，無法取代正式報稅程序或註冊稅務代理人之專業建議。</p>
+              <p><strong class="text-[color:var(--navy-2)]">本站並非註冊稅務代理人</strong>，亦未於 Tax Practitioners Board（TPB）註冊，不代為準備或提交報稅申報。可透過 <a href="https://www.tpb.gov.au/public-register" class="underline decoration-dotted text-[color:var(--navy-2)]">TPB 公開名冊</a> 查詢稅務代理人登記資格。</p>
+              <p>本站<strong class="text-[color:var(--navy-2)]">與 ATO、Services Australia 或澳洲政府並無任何官方關聯或認可關係</strong>。稅法與稅率可能變動，請務必至 <a href="https://www.ato.gov.au" class="underline decoration-dotted text-[color:var(--navy-2)]">ato.gov.au</a> 核實最新資訊。</p>
+              <p>在法律允許之最大範圍內，本站對因信賴本站試算結果所生之任何損失，不負任何責任，包括與你實際 ATO 核定結果之差異。</p>
+            </div></template>
+          </div>
+        </template>
+
+      </div>
+
+      <!-- Modal footer -->
+      <div class="px-5 sm:px-6 py-4 border-t border-slate-200 shrink-0 bg-slate-50">
+        <button type="button" @click="closeModal()" class="w-full py-2.5 rounded-lg font-bold text-sm text-white transition-colors" style="background:var(--gold-deep)" x-text="currentLang === 'zh' ? '關閉' : 'Close'"></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function taxApp(){
+  return {
+    tab: 'resident',
+    currentLang: 'en',
+    langMenuOpen: false,
+    income: 80000,
+    deductions: 1500,
+    withheld: 18000,
+    medicareExemptChoice: 'standard',
+    activeModal: null, // 'about' | 'contact' | 'privacy' | 'terms' | 'disclaimer' | null
+
+    // ---- Contact form (Formspree AJAX) ----
+    formspreeEndpoint: 'https://formspree.io/f/mrpzvnzb',
+    contactName: '',
+    contactEmail: '',
+    contactMessage: '',
+    contactStatus: 'idle', // 'idle' | 'sending' | 'success' | 'error'
+    contactErrorMsg: '',
+
+    async submitContactForm(){
+      if (this.contactStatus === 'sending') return;
+      this.contactStatus = 'sending';
+      this.contactErrorMsg = '';
+      try {
+        const fd = new FormData();
+        fd.append('name', this.contactName);
+        fd.append('email', this.contactEmail);
+        fd.append('message', this.contactMessage);
+        fd.append('_language', this.currentLang);
+        fd.append('_subject', 'New message — Southern Cross Tax Estimator');
+
+        const res = await fetch(this.formspreeEndpoint, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: fd
+        });
+
+        if (res.ok) {
+          this.contactStatus = 'success';
+          this.contactName = '';
+          this.contactEmail = '';
+          this.contactMessage = '';
+        } else {
+          let data = null;
+          try { data = await res.json(); } catch (e) { /* non-JSON error body */ }
+          if (data && Array.isArray(data.errors) && data.errors.length) {
+            this.contactErrorMsg = data.errors.map(e => e.message).join(' ');
+          } else {
+            this.contactErrorMsg = this.currentLang === 'zh'
+              ? '送出失敗，請稍後再試，或直接寄信給我們。'
+              : 'Something went wrong. Please try again, or email us directly.';
+          }
+          this.contactStatus = 'error';
+        }
+      } catch (err) {
+        this.contactErrorMsg = this.currentLang === 'zh'
+          ? '網路連線異常，請確認網路連線後再試一次。'
+          : 'Network error — please check your connection and try again.';
+        this.contactStatus = 'error';
+      }
+    },
+
+    resetContactForm(){
+      this.contactStatus = 'idle';
+      this.contactErrorMsg = '';
+    },
+
+    openModal(id){
+      this.activeModal = id;
+      if (id === 'contact') this.resetContactForm();
+    },
+    closeModal(){
+      this.activeModal = null;
+    },
+    get modalTitle(){
+      const map = {
+        about: this.t('footerAbout'),
+        contact: this.t('footerContact'),
+        privacy: this.t('footerPrivacy'),
+        terms: this.t('footerTerms'),
+        disclaimer: this.t('footerDisclaimer'),
+      };
+      return map[this.activeModal] || '';
+    },
+
+    translations: {
+      en: {
+        heroTitle: 'Australian Income Tax & Working Holiday Maker Refund Calculator',
+        heroSubtitle: '2025–26 Financial Year (1 Jul 2025 – 30 Jun 2026) · Covering resident tax rates, Medicare Levy exemption, and the 417/462 Working Holiday Maker tax schedule.',
+        tabResident: 'Tax Resident',
+        tabWhm: 'Working Holiday (417/462)',
+        incomeDetailsTitle: 'Income Details',
+        incomeDetailsSubResident: 'For Australian tax residents',
+        incomeDetailsSubWhm: 'For 417 / 462 Working Holiday visa holders',
+        grossIncomeLabel: 'Gross Annual Income',
+        deductionsLabel: 'Work-related Deductions',
+        withheldLabel: 'Tax Withheld by Employer',
+        medicareQuestion: 'Do you need to pay the 2% Medicare Levy?',
+        medicareStandardTitle: 'Standard Rate (2%)',
+        medicareStandardDesc: 'Australian citizens, permanent residents (PR), or Medicare card holders',
+        medicareExemptTitle: 'Claim Exemption (0%)',
+        medicareExemptDesc: 'WHV 417/462, Student visa 500, 482 work visa, and other temporary visa holders',
+        medicareWhmAutoTitle: '417/462 WHM — Auto-Exempt (0%)',
+        medicareWhmAutoDesc: 'Working holiday makers generally cannot access Medicare, so this is automatically set to $0',
+        medicareTip: '💡 Tip: Most temporary visa holders in Australia (WHV 417/462, students, 482 visa) cannot access Medicare services. You can apply to Services Australia for a <strong>Medicare Levy Exemption Certificate (MES)</strong> to legally avoid this 2% levy!',
+        hintResident1: 'Tax-free threshold $18,200; uses the 2025–26 revised tax brackets',
+        hintResident2: 'Medicare Levy (2%) can be toggled to exempt or standard above',
+        hintResident3: 'Low Income Tax Offset (LITO) applied automatically (up to $700)',
+        hintWhm1: 'No tax-free threshold; 15% applies to the $0–$45,000 portion',
+        hintWhm2: 'Above $45,000, resident marginal rates apply (30% / 37% / 45%)',
+        hintWhm3: 'Medicare Levy and LITO do not apply',
+        toolNote: 'ⓘ This tool provides an estimate only and does not account for private health insurance, HECS-HELP repayments, or other offsets. Refer to the ATO or a Registered Tax Agent for your actual liability. See "Legal Tax Disclaimer" below.',
+        resultsTitle: 'Estimate Summary',
+        taxableIncomeLabel: 'Taxable Income',
+        breakdownTitle: 'Calculation Breakdown',
+        baseIncomeTaxLabel: 'Base Income Tax',
+        medicareLevyLabel: 'Medicare Levy (2%)',
+        exemptAmount: '$0.00 (Exempt)',
+        litoLabel: 'LITO Offset',
+        finalTaxLabel: 'Final Tax Payable',
+        taxPayableTitle: 'Tax Payable',
+        taxPayableSub: 'Estimated Tax Payable',
+        taxPayableHelperResident: 'Includes income tax',
+        taxPayableHelperWhm: 'Calculated using the WHM-specific tax schedule, with no tax-free threshold',
+        netTakeHomeTitle: 'Net Take-Home Pay',
+        netTakeHomeSub: 'Net Take-Home Pay',
+        netTakeHomeHelper: 'Gross income minus tax payable, approx. per week:',
+        refundLabel: 'Estimated Refund',
+        refundLabelSub: 'Estimated Refund',
+        owedLabel: 'Estimated Tax Owed',
+        owedLabelSub: 'Estimated Tax Owed',
+        withheldVsTax: 'Tax withheld minus tax payable:',
+        bracketsTitle: 'Tax Brackets Applied',
+        footerCopyright: '© 2026 Southern Cross Tax Estimator — For educational and reference purposes only, not formal tax advice.',
+        footerAbout: 'About Us',
+        footerContact: 'Contact Us',
+        footerPrivacy: 'Privacy Policy',
+        footerTerms: 'Terms of Service',
+        footerDisclaimer: 'Legal Disclaimer',
+      },
+      zh: {
+        heroTitle: '澳洲個人所得稅與打工度假退稅計算機',
+        heroSubtitle: '2025–26 財政年度(2025 年 7 月 1 日 – 2026 年 6 月 30 日)，涵蓋居民稅率、Medicare Levy 豁免選項與打工度假簽證(417/462)專屬稅階。',
+        tabResident: '澳洲稅務居民',
+        tabWhm: '打工度假 417/462',
+        incomeDetailsTitle: '收入資料',
+        incomeDetailsSubResident: '適用於澳洲稅務居民身分',
+        incomeDetailsSubWhm: '適用於持 417 / 462 打工度假簽證者',
+        grossIncomeLabel: '年總收入',
+        deductionsLabel: '工作相關扣除額',
+        withheldLabel: '已預扣稅款',
+        medicareQuestion: '是否需要繳納 2% Medicare Levy？',
+        medicareStandardTitle: '標準繳納 (2%)',
+        medicareStandardDesc: '澳洲公民、永久居民(PR)或持有 Medicare 保卡者',
+        medicareExemptTitle: '申請豁免 (0%)',
+        medicareExemptDesc: '417/462 WHV、學生簽證 500、482 工作簽證等臨時簽證持有者',
+        medicareWhmAutoTitle: '417/462 WHM 自動豁免 (0%)',
+        medicareWhmAutoDesc: '打工度假簽證持有者通常無法使用 Medicare，已自動設為 $0',
+        medicareTip: '💡 提示：多數澳洲臨時簽證持有者（如 WHV 417/462、留學生、482 簽證）無法使用 Medicare 醫療服務，可向 Services Australia 申請 <strong>Medicare Levy Exemption Certificate (MES)</strong> 憑證，合法免繳這 2% 稅金！',
+        hintResident1: '免稅門檻 $18,200；適用 2025–26 修訂稅率級距',
+        hintResident2: 'Medicare Levy (2%) 可依上方選擇豁免或標準繳納',
+        hintResident3: '自動套用 LITO 低收入退稅抵免（最高 $700）',
+        hintWhm1: '無免稅門檻，$0–$45,000 部分課徵 15%',
+        hintWhm2: '超過 $45,000 按居民階梯稅率課徵（30% / 37% / 45%）',
+        hintWhm3: '不適用 Medicare Levy，亦不適用 LITO',
+        toolNote: 'ⓘ 本工具僅供概算參考，未考量私人健康保險、HECS-HELP 償還、其他扣除額或折抵，實際稅額請以 ATO 或註冊稅務代理人計算為準。詳見下方「法律免責聲明」。',
+        resultsTitle: '試算結果',
+        taxableIncomeLabel: '應稅所得',
+        breakdownTitle: '計算明細',
+        baseIncomeTaxLabel: '基本個人所得稅',
+        medicareLevyLabel: 'Medicare Levy (2%)',
+        exemptAmount: '$0.00（免繳）',
+        litoLabel: 'LITO 低收入抵稅額',
+        finalTaxLabel: '最終預估應納稅額',
+        taxPayableTitle: '應納稅額',
+        taxPayableSub: '預估應納稅額',
+        taxPayableHelperResident: '含所得稅',
+        taxPayableHelperWhm: '按 WHM 專屬階梯稅率計算，無免稅額',
+        netTakeHomeTitle: '實領淨收入',
+        netTakeHomeSub: '實領淨收入',
+        netTakeHomeHelper: '年總收入 − 應納稅額，約每週：',
+        refundLabel: '預期退稅',
+        refundLabelSub: '預估退稅金額',
+        owedLabel: '預期補稅',
+        owedLabelSub: '預估應補稅額',
+        withheldVsTax: '已預扣稅款 − 應納稅額：',
+        bracketsTitle: '適用稅率級距',
+        footerCopyright: '© 2026 Southern Cross Tax Estimator — 僅供教育與參考用途，非正式稅務建議。',
+        footerAbout: '關於我們',
+        footerContact: '聯絡我們',
+        footerPrivacy: '隱私權政策',
+        footerTerms: '服務條款',
+        footerDisclaimer: '法律免責聲明',
+      }
+    },
+
+    t(key){
+      const dict = this.translations[this.currentLang] || this.translations.en;
+      return dict[key] !== undefined ? dict[key] : key;
+    },
+
+    fmt(v){
+      if (v === null || v === undefined || isNaN(v)) v = 0;
+      return v.toLocaleString('en-AU', { style:'currency', currency:'AUD', maximumFractionDigits:0 });
+    },
+
+    get medicareExempt(){
+      if (this.tab === 'whm') return true;
+      return this.medicareExemptChoice === 'exempt';
+    },
+
+    get taxableIncome(){
+      const gross = Number(this.income) || 0;
+      const ded = Number(this.deductions) || 0;
+      return Math.max(0, gross - ded);
+    },
+
+    residentIncomeTax(ti){
+      if (ti <= 18200) return 0;
+      if (ti <= 45000) return (ti - 18200) * 0.16;
+      if (ti <= 135000) return 4288 + (ti - 45000) * 0.30;
+      if (ti <= 190000) return 31288 + (ti - 135000) * 0.37;
+      return 51638 + (ti - 190000) * 0.45;
+    },
+
+    medicareLevy(ti){
+      const lower = 27222;
+      const upper = 34027;
+      if (ti <= lower) return 0;
+      if (ti <= upper) return Math.min((ti - lower) * 0.10, ti * 0.02);
+      return ti * 0.02;
+    },
+
+    litoOffset(ti){
+      if (ti <= 37500) return 700;
+      if (ti <= 45000) return Math.max(0, 700 - (ti - 37500) * 0.05);
+      if (ti <= 66667) return Math.max(0, 325 - (ti - 45000) * 0.015);
+      return 0;
+    },
+
+    whmTax(ti){
+      if (ti <= 45000) return ti * 0.15;
+      if (ti <= 135000) return 6750 + (ti - 45000) * 0.30;
+      if (ti <= 190000) return 33750 + (ti - 135000) * 0.37;
+      return 54100 + (ti - 190000) * 0.45;
+    },
+
+    get incomeTax(){
+      const ti = this.taxableIncome;
+      return this.tab === 'resident' ? this.residentIncomeTax(ti) : this.whmTax(ti);
+    },
+    get medicare(){
+      if (this.medicareExempt) return 0;
+      return this.medicareLevy(this.taxableIncome);
+    },
+    get lito(){
+      return this.tab === 'resident' ? this.litoOffset(this.taxableIncome) : 0;
+    },
+    get totalTax(){
+      const t = this.incomeTax + this.medicare - this.lito;
+      return Math.max(0, Math.round(t));
+    },
+    get netTakeHome(){
+      const gross = Number(this.income) || 0;
+      return Math.max(0, gross - this.totalTax);
+    },
+    get refund(){
+      const w = Number(this.withheld) || 0;
+      return Math.round(w - this.totalTax);
+    },
+
+    get brackets(){
+      const ti = this.taxableIncome;
+      if (this.tab === 'resident'){
+        return [
+          { range: '$0 – $18,200',      rate: '0%',  pct: this.segPct(ti,0,18200) },
+          { range: '$18,201 – $45,000', rate: '16%', pct: this.segPct(ti,18200,45000) },
+          { range: '$45,001 – $135,000',rate: '30%', pct: this.segPct(ti,45000,135000) },
+          { range: '$135,001 – $190,000',rate:'37%', pct: this.segPct(ti,135000,190000) },
+          { range: '$190,001+',         rate: '45%', pct: this.segPct(ti,190000,999999999) },
+        ];
+      }
+      return [
+        { range: '$0 – $45,000',       rate: '15%', pct: this.segPct(ti,0,45000) },
+        { range: '$45,001 – $135,000', rate: '30%', pct: this.segPct(ti,45000,135000) },
+        { range: '$135,001 – $190,000',rate: '37%', pct: this.segPct(ti,135000,190000) },
+        { range: '$190,001+',          rate: '45%', pct: this.segPct(ti,190000,999999999) },
+      ];
+    },
+
+    segPct(ti, lo, hi){
+      if (ti <= lo) return 4;
+      const span = hi === 999999999 ? Math.max(ti - lo, 1) : (hi - lo);
+      const filled = Math.min(ti, hi) - lo;
+      const pct = Math.max(0, Math.min(100, (filled / span) * 100));
+      return pct < 4 ? 4 : pct;
+    }
+  }
+}
+</script>
+</body>
+</html>
